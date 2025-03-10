@@ -46,8 +46,7 @@ class StudentCall(models.Model):
         ('A', 'Answered'),
         ('NA', 'Not Answered'),
         ('WN', 'Wrong Number'),
-        ('I', 'Interested'),
-        ('NI', 'Not Interested'),
+ 
     ]
     call_1_status = models.CharField(max_length=2, choices=CALL_STATUS_CHOICES, default='P')
     
