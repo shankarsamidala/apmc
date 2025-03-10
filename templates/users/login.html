@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-image: url('https://res.cloudinary.com/onecompiler/image/upload/v1627630748/public/photos/aditya_qbrcbd.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+
+<body class="flex items-center justify-center min-h-screen">
+    <div class="bg-white bg-opacity-90 p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">SIGN IN TO YOUR ACCOUNT</h2>
+
+        <!-- Django Flash Messages -->
+        {% if messages %}
+        {% for message in messages %}
+        <div class="p-3 mb-2 text-white bg-red-500 rounded">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="POST" action="{% url 'login' %}">
+            {% csrf_token %}
+            <div class="mb-4">
+                <input type="text" name="emp_id" placeholder="Enter Faculty ID"
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    required>
+            </div>
+            <div class="mb-4">
+                <input type="password" name="password" placeholder="********"
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    required>
+            </div>
+            <div class="mb-4 flex items-center">
+                <input type="checkbox" id="keep-signed-in" class="mr-2">
+                <label for="keep-signed-in" class="text-gray-600">Keep me signed in</label>
+            </div>
+            <button type="submit"
+                class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition">
+                SIGN IN
+            </button>
+        </form>
+
+        <p class="text-center mt-4 text-gray-500">
+            <a href="#" class="text-purple-700 hover:underline">Forgot your password?</a>
+        </p>
+    </div>
+</body>
+
+</html>

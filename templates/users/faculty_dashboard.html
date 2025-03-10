@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="p-8">
+        <!-- Faculty Details Section -->
+    <!-- Faculty Welcome Section -->
+    <div class="bg-blue-900 text-white p-6 rounded-lg shadow-md mb-6 flex justify-between items-center">
+        <div>
+            <h2 class="text-2xl font-bold">Welcome Back, {{ faculty.full_name }}</h2>
+            <a href="{% url 'logout' %}" class="block py-2 px-4 rounded-lg text-red-600 hover:bg-gray-200">🔓 Logout</a>
+        </div>
+        <p class="text-sm text-gray-300">⟳ Updated Recently on {{ last_updated }}</p>
+    </div>
+
+    <!-- Summary Cards Section -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+        <!-- Not Interested -->
+        <div class="bg-white p-4 rounded-lg shadow-md text-center">
+            <h3 class="text-2xl font-bold">{{ student_status_counts.NI }}</h3>
+            <p class="text-gray-600">Not Interested</p>
+        </div>
+
+   
+
+        <!-- Willing to Degree -->
+        <div class="bg-white p-4 rounded-lg shadow-md text-center">
+            <h3 class="text-2xl font-bold">{{ student_status_counts.WD }}</h3>
+            <p class="text-gray-600">Willing to Degree</p>
+        </div>
+
+        <!-- Willing to Engineering -->
+        <div class="bg-white p-4 rounded-lg shadow-md text-center">
+            <h3 class="text-2xl font-bold">{{ student_status_counts.WE }}</h3>
+            <p class="text-gray-600">Willing to Engineering</p>
+        </div>
+
+        <!-- Not Decided -->
+        <div class="bg-white p-4 rounded-lg shadow-md text-center">
+            <h3 class="text-2xl font-bold">{{ student_status_counts.ND }}</h3>
+            <p class="text-gray-600">Not Decided</p>
+        </div>
+
+        <!-- Joined -->
+        <div class="bg-white p-4 rounded-lg shadow-md text-center">
+            <h3 class="text-2xl font-bold">{{ student_status_counts.J }}</h3>
+            <p class="text-gray-600">Joined</p>
+        </div>
+    </div>
+
+        <h2 class="text-3xl font-bold text-gray-800 mb-4">Faculty Dashboard</h2>
+        <table class="min-w-full border border-gray-300 text-left">
+            <thead class="bg-gray-800 text-white">
+                <tr>
+                    <th class="p-3">Student Name</th>
+                    <th class="p-3">Phone</th>
+                    <th class="p-3">Group</th>
+                    <th class="p-3">Rank</th>
+                    <th class="p-3">Marks</th>
+                    <th class="p-3">Call Status</th>
+                    <th class="p-3">Student Status</th>
+                    <th class="p-3">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for call in calls %}
+                    <tr class="border-b">
+                        <td class="p-3 text-sm font whitespace-normal break-words leading-tight">
+                            {{ call.student_name }}
+                        </td>
+                        <td class="p-3 text-sm">{{ call.phone_1 }}</td>
+                        <td class="p-3 text-sm">{{ call.inter_group|default:"N/A" }}</td>
+                        <td class="p-3 text-sm">{{ call.exam_rank|default:"N/A" }}</td>
+                        <td class="p-3 text-sm">{{ call.inter_marks|default:"N/A" }}</td>
+                        <td class="p-3 text-sm">{{ call.get_call_1_status_display }}</td>
+                        <td class="p-3 text-sm">{{ call.get_status_display }}</td>
+                        <td class="p-3">
+                            <button class="bg-blue-500 text-white px-3 py-1 text-xs rounded shadow hover:bg-blue-600" 
+                                onclick="openModal(
+                                    '{{ call.id }}',
+                                    '{{ call.inter_group|default:'' }}',
+                                    '{{ call.exam_rank|default:'' }}',
+                                    '{{ call.inter_marks|default:'' }}',
+                                    '{{ call.call_1_status|default:'P' }}',
+                                    '{{ call.status|default:'ND' }}',
+                                    '{{ call.comments|default:'' }}'
+                                )">
+                                ✏️ Edit
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Call Edit Modal -->
+    <div id="editModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <h2 class="text-xl font-bold mb-4">Edit Call Details</h2>
+
+            <!-- Hidden field for Call ID -->
+            <input type="hidden" id="editCallId">
+
+            <!-- Group -->
+            <label class="block text-gray-700">Group</label>
+            <select id="editInterGroup" class="w-full border rounded px-2 py-1 mb-2">
+                {% for code, label in inter_group_choices %}
+                    <option value="{{ code }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- Rank -->
+            <label class="block text-gray-700">Exam Rank</label>
+            <input type="text" id="editExamRank" class="w-full border rounded px-2 py-1 mb-2">
+
+            <!-- Marks -->
+            <label class="block text-gray-700">Intermediate Marks</label>
+            <input type="number" id="editInterMarks" class="w-full border rounded px-2 py-1 mb-2">
+
+            <!-- Call Status -->
+            <label class="block text-gray-700">Call Status</label>
+            <select id="editCallStatus" class="w-full border rounded px-2 py-1 mb-2">
+                {% for code, label in call_status_choices %}
+                    <option value="{{ code }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- Student Status -->
+            <label class="block text-gray-700">Student Status</label>
+            <select id="editStudentStatus" class="w-full border rounded px-2 py-1 mb-2">
+                {% for code, label in student_status_choices %}
+                    <option value="{{ code }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- Remarks -->
+            <label class="block text-gray-700">Remarks</label>
+            <textarea id="editRemarks" class="w-full border rounded px-2 py-1 mb-4"></textarea>
+
+            <!-- Save and Close Buttons -->
+            <button onclick="saveCallStatus()" class="bg-green-500 text-white px-4 py-2 rounded shadow hover:bg-green-600">💾 Save</button>
+            <button onclick="closeModal()" class="ml-2 bg-gray-500 text-white px-4 py-2 rounded shadow hover:bg-gray-600">❌ Close</button>
+        </div>
+    </div>
+
+<!-- CSRF Token for JavaScript -->
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+<script>
+    function openModal(id, group, rank, marks, callStatus, studentStatus, remarks) {
+        document.getElementById("editCallId").value = id;
+        document.getElementById("editInterGroup").value = group || "";
+        document.getElementById("editExamRank").value = rank || "";
+        document.getElementById("editInterMarks").value = marks || "";
+        document.getElementById("editCallStatus").value = callStatus || "P";
+        document.getElementById("editStudentStatus").value = studentStatus || "ND";
+        document.getElementById("editRemarks").value = remarks || "";
+
+        document.getElementById("editModal").classList.remove("hidden");
+    }
+
+    function closeModal() {
+        document.getElementById("editModal").classList.add("hidden");
+    }
+
+    function saveCallStatus() {
+        let callId = document.getElementById("editCallId").value;
+        let interGroup = document.getElementById("editInterGroup").value;
+        let examRank = document.getElementById("editExamRank").value;
+        let interMarks = document.getElementById("editInterMarks").value;
+        let callStatus = document.getElementById("editCallStatus").value || "P";
+        let studentStatus = document.getElementById("editStudentStatus").value || "ND";
+        let remarks = document.getElementById("editRemarks").value || "";
+    
+        fetch("{% url 'update_call_status' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCSRFToken()
+            },
+            body: JSON.stringify({
+                call_id: callId,
+                inter_group: interGroup,
+                exam_rank: examRank,
+                inter_marks: interMarks,
+                call_status: callStatus,
+                student_status: studentStatus,
+                remarks: remarks
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Call details updated successfully!");
+                location.reload();
+            } else {
+                alert("Failed to update: " + data.message);
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    }
+
+    function getCSRFToken() {
+        let tokenElement = document.querySelector('input[name="csrfmiddlewaretoken"]');
+        return tokenElement ? tokenElement.value : "";
+    }
+</script>
+</body>
+</html>
