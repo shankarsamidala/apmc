@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  django:
+    build: ./app
+    container_name: django_app
+    restart: always
+    env_file: .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    volumes:
+      - ./app:/app
+
+ 
